@@ -1,0 +1,96 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace KeypadTest
+{
+    public class KeypadConverter
+    {
+        private static readonly Dictionary<char, string> keypadMap = new Dictionary<char, string>
+        {
+            {'2', "ABC"},
+            {'3', "DEF"},
+            {'4', "GHI"},
+            {'5', "JKL"},
+            {'6', "MNO"},
+            {'7', "PQRS"},
+            {'8', "TUV"},
+            {'9', "WXYZ"}
+        };
+
+        public static string Convert(string keypadInput)
+        {
+            if (string.IsNullOrEmpty(keypadInput))
+                return string.Empty;
+
+            StringBuilder result = new StringBuilder();
+            char lastChar = '\0';
+            int consecutivePresses = 0;
+
+            foreach (char c in keypadInput)
+            {
+                if (c == '#')
+                    break;
+
+                if (c == ' ')
+                {
+                    if (lastChar != '\0' && keypadMap.ContainsKey(lastChar))
+                    {
+                        string letters = keypadMap[lastChar];
+                        int index = (consecutivePresses - 1) % letters.Length;
+                        result.Append(letters[index]);
+                    }
+                    lastChar = '\0';
+                    consecutivePresses = 0;
+                    continue;
+                }
+
+                if (lastChar == c)
+                {
+                    consecutivePresses++;
+                }
+                else
+                {
+                    if (lastChar != '\0' && keypadMap.ContainsKey(lastChar))
+                    {
+                        string letters = keypadMap[lastChar];
+                        int index = (consecutivePresses - 1) % letters.Length;
+                        result.Append(letters[index]);
+                    }
+                    lastChar = c;
+                    consecutivePresses = 1;
+                }
+            }
+
+            if (lastChar != '\0' && keypadMap.ContainsKey(lastChar))
+            {
+                string letters = keypadMap[lastChar];
+                int index = (consecutivePresses - 1) % letters.Length;
+                result.Append(letters[index]);
+            }
+
+            return result.ToString();
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string input1 = "33";
+            string input2 = "222*#";
+            string input3 = "4433555 555666#";
+            string input4 = "8 88777444666*664#";
+
+            string output1 = KeypadConverter.Convert(input1);
+            string output2 = KeypadConverter.Convert(input2);
+            string output3 = KeypadConverter.Convert(input3);
+            string output4 = KeypadConverter.Convert(input4);
+
+            Console.WriteLine(output1); // Output: "E"
+            Console.WriteLine(output2); // Output: "C"
+            Console.WriteLine(output3); // Output: "HELLO"
+            Console.WriteLine(output4); // Output: "TURING"
+        }
+    }
+}
